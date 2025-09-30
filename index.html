@@ -59,29 +59,45 @@
     currentItems = [];
     document.getElementById("total").innerText = "Total: $0";
   }
+function submitOrder() {
+  if (currentTotal === 0) return;
 
-  function submitOrder() {
-     if (currentTotal === 0) return;
+  const now = new Date();
+  const date = now.toLocaleDateString();  
+  const time = now.toLocaleTimeString();  
 
-    const now = new Date();
-    const date = now.toLocaleDateString();   // e.g. 1/10/2025
-    const time = now.toLocaleTimeString();   // e.g. 3:45:22 PM
+  // local storage
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders.push({
+    items: currentItems,
+    total: currentTotal,
+    date: date,
+    time: time
+  });
+  localStorage.setItem("orders", JSON.stringify(orders));
 
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push({
-      items: currentItems,
-      total: currentTotal,
+  // google sheet posting
+  fetch("https://script.google.com/macros/s/AKfycbzpsaG6Izx1UqVCV6WXALP-QfFYELyB2viC5i0azNNd1zuHd_bszaBwTTTEDUrt6dEF/exec", {
+    method: "POST",
+    body: JSON.stringify({
       date: date,
-      time: time
-    });
-    localStorage.setItem("orders", JSON.stringify(orders));
+      time: time,
+      items: currentItems,
+      total: currentTotal
+    })
+  })
+  .then(res => res.json())
+  .then(data => console.log("Sheet saved:", data))
+  .catch(err => console.error("Error sending to Sheet:", err));
 
-    renderHistory();
+  // history rendering
+  renderHistory();
 
-    currentTotal = 0;
-    currentItems = [];
-    document.getElementById("total").innerText = "Total: $0";
-  }
+  //reset current order
+  currentTotal = 0;
+  currentItems = [];
+  document.getElementById("total").innerText = "Total: $0";
+}
 
 function renderHistory() {
   let orders = JSON.parse(localStorage.getItem("orders")) || [];
