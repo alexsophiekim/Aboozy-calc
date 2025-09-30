@@ -54,53 +54,75 @@
   }
 
   function submitOrder() {
-    if (currentTotal === 0) return;
+     if (currentTotal === 0) return;
+
+    const now = new Date();
+    const date = now.toLocaleDateString();   // e.g. 1/10/2025
+    const time = now.toLocaleTimeString();   // e.g. 3:45:22 PM
 
     let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    orders.push({ items: currentItems, total: currentTotal, time: new Date().toLocaleTimeString() });
+    orders.push({
+      items: currentItems,
+      total: currentTotal,
+      date: date,
+      time: time
+    });
     localStorage.setItem("orders", JSON.stringify(orders));
 
     renderHistory();
 
-    // Reset current order
     currentTotal = 0;
     currentItems = [];
     document.getElementById("total").innerText = "Total: $0";
   }
 
-  function renderHistory() {
-    let orders = JSON.parse(localStorage.getItem("orders")) || [];
-    let historyEl = document.getElementById("history");
-    historyEl.innerHTML = "";
+function renderHistory() {
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  let historyEl = document.getElementById("history");
+  historyEl.innerHTML = "";
 
-    let totalSales = 0;
-    orders.forEach(o => {
-      let li = document.createElement("li");
+  // Date grouping
+  let grouped = {};
+  orders.forEach(o => {
+    if (!grouped[o.date]) grouped[o.date] = [];
+    grouped[o.date].push(o);
+  });
+
+  let summaryHTML = "";
+
+  Object.keys(grouped).sort().forEach(date => {
+    let dailyOrders = grouped[date];
+    historyEl.innerHTML += `<div class="history-date">${date}</div>`;
+    dailyOrders.forEach(o => {
+      let li = document.createElement("div");
       li.innerText = `${o.time} | ${o.items.join(", ")} = $${o.total.toFixed(2)}`;
       historyEl.appendChild(li);
-      totalSales += o.total;
     });
 
-    // Total Summary
-    let totalOrders = orders.length;
-    let gst = totalSales * (15/115); // NZ GST 15%
+    // Date summary
+    let totalSales = dailyOrders.reduce((sum, o) => sum + o.total, 0);
+    let gst = totalSales * (15/115);
     let netSales = totalSales - gst;
-
-    document.getElementById("summary").innerHTML = `
-      <h2>📊 Summary</h2>
-      Total Order: ${totalOrders}<br>
-      Total Sales: $${totalSales.toFixed(2)}<br>
-      GST (15%): $${gst.toFixed(2)}<br>
-      Gross sales: $${netSales.toFixed(2)}
+    summaryHTML += `
+      <div class="summary">
+        <strong>${date} Summary:</strong><br>
+        Daily total orders: ${dailyOrders.length}<br>
+        Total sales: $${totalSales.toFixed(2)}<br>
+        GST (15%): $${gst.toFixed(2)}<br>
+        Net sales: $${netSales.toFixed(2)}
+      </div>
     `;
-  }
+  });
 
-  function resetHistory() {
-    localStorage.removeItem("orders");
-    renderHistory();
-  }
+  document.getElementById("summary").innerHTML = summaryHTML;
+}
 
+function resetHistory() {
+  localStorage.removeItem("orders");
   renderHistory();
+}
+
+renderHistory();
 </script>
 </body>
 </html>
