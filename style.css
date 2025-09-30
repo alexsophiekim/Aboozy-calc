@@ -29,6 +29,10 @@ button {
     border-radius: 10px;
     border: 1px solid #ccc; 
 }
+.price,
+.item-text {
+    color:black
+}
 .confirm-btn {
     width: 200px;
     padding:10px;
