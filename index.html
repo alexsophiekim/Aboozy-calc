@@ -12,8 +12,10 @@
 <body>
   <h1 style="font-family:MuseoModerno, sans-serif; letter-spacing:4px">aboozy</h1>
     <div id="total">Total: $0</div>
-
-  <button onclick="submitOrder()" class="confirm-btn"> Confirm Order</button>
+  <div class="button-row">
+    <button onclick="submitOrder()" class="confirm-btn"> Confirm Order</button>
+    <button onclick="resetCurrentOrder()" class="restart-btn">$0</button>
+  </div>
 
   <div class="section">
     <h3>Main Items</h3>
@@ -51,6 +53,11 @@
     currentTotal += price;
     currentItems.push(name);
     document.getElementById("total").innerText = `Total: $${currentTotal.toFixed(2)}`;
+  }
+  function resetCurrentOrder() {
+    currentTotal = 0;
+    currentItems = [];
+    document.getElementById("total").innerText = "Total: $0";
   }
 
   function submitOrder() {

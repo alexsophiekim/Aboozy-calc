@@ -33,13 +33,27 @@ button {
 .item-text {
     color:black
 }
+.button-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+}
 .confirm-btn {
-    width: 200px;
+    width: 80%;
     padding:10px;
     font-size: 20px;
     background-color: #4CAF50;
     color: white;
     border: none;
+}
+.restart-btn{
+    width: 20%;
+    padding:10px;
+    font-size: 20px;
+    border: 1px solid #ccc;
 }
 #total { 
     font-size: 40px; 
@@ -62,7 +76,7 @@ button {
     font-size: 18px; 
 }
 .line{
-    width: 100%;
+    width: 90%;
     height: 10px;
     border-bottom: 1px solid black;
     position: absolute;
