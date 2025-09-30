@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aboozy Counter</title>
+  <link rel="stylesheet" href="./style.css" >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=MuseoModerno:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1 style="font-family:MuseoModerno, sans-serif; letter-spacing:4px">aboozy</h1>
+    <div id="total">Total: $0</div>
+
+  <button onclick="submitOrder()" class="confirm-btn"> Confirm Order</button>
+
+
+  <div class="section">
+    <h2>🍗 Main Items</h2>
+    <div class="buttons">
+      <button onclick="addItem('Aboozy Snack', 15)"><h2 class="price">$15</h1> <p class="item-text">Aboozy Snack</p></button>
+      <button onclick="addItem('Couple Pack', 28)"><h2 class="price">$28</h2> <p class="item-text">Couple Pack</p></button>
+      <button onclick="addItem('Family Feast', 38)"><h2 class="price">$38</h2> <p class="item-text">Family Feast</p></button>
+      <button onclick="addItem('Party Platter', 60)"><h2 class="price">$60</h2><p class="item-text">Party Platter</p> </button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>➕ Add-ons</h2>
+    <div class="buttons">
+      <button onclick="addItem('Large Chips', 4)"><h2 class="price">🍟 $4</h2> <p class="item-text">Large Chips</p></button>
+      <button onclick="addItem('Fresh Slaw', 3)"><h2 class="price">🥗 $3</h2> <p class="item-text">Fresh Slaw</p></button>
+      <button onclick="addItem('Soft Drink', 2.5)"><h2 class="price">🥤 $2.5</h2> <p class="item-text">Soft Drink</p></button>
+      <button onclick="addItem('Extra Sauce', 1)"><h2 class="price">🌶️ $1</h2> <p class="item-text">Extra Sauce</p></button>
+      <button onclick="addItem('Extra 2pc Chicken', 6)"><h2 class="price">🍗 $5</h2><p class="item-text">2pc Chicken</p></button>
+    </div>
+  </div>
+
+  <h2 style="margin-top:60px;">📜 History</h2>
+  <ul id="history"></ul>
+  <div class="line"></div>
+  <div id="summary"></div>
+  <div class="line"></div>
+  <button onclick="resetHistory()" class="reset-btn">Reset History</button>
+
+<script>
+  let currentTotal = 0;
+  let currentItems = [];
+
+  function addItem(name, price) {
+    currentTotal += price;
+    currentItems.push(name);
+    document.getElementById("total").innerText = `Total: $${currentTotal.toFixed(2)}`;
+  }
+
+  function submitOrder() {
+    if (currentTotal === 0) return;
+
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    orders.push({ items: currentItems, total: currentTotal, time: new Date().toLocaleTimeString() });
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    renderHistory();
+
+    // Reset current order
+    currentTotal = 0;
+    currentItems = [];
+    document.getElementById("total").innerText = "Total: $0";
+  }
+
+  function renderHistory() {
+    let orders = JSON.parse(localStorage.getItem("orders")) || [];
+    let historyEl = document.getElementById("history");
+    historyEl.innerHTML = "";
+
+    let totalSales = 0;
+    orders.forEach(o => {
+      let li = document.createElement("li");
+      li.innerText = `${o.time} | ${o.items.join(", ")} = $${o.total.toFixed(2)}`;
+      historyEl.appendChild(li);
+      totalSales += o.total;
+    });
+
+    // Total Summary
+    let totalOrders = orders.length;
+    let gst = totalSales * (15/115); // NZ GST 15%
+    let netSales = totalSales - gst;
+
+    document.getElementById("summary").innerHTML = `
+      <h2>📊 Summary</h2>
+      Total Order: ${totalOrders}<br>
+      Total Sales: $${totalSales.toFixed(2)}<br>
+      GST (15%): $${gst.toFixed(2)}<br>
+      Gross sales: $${netSales.toFixed(2)}
+    `;
+  }
+
+  function resetHistory() {
+    localStorage.removeItem("orders");
+    renderHistory();
+  }
+
+  renderHistory();
+</script>
+</body>
+</html>
