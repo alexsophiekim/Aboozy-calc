@@ -6,6 +6,8 @@
     text-align: center;
     background-color: #f9f9f9;
     touch-action: manipulation; /* double tap to zoom disabled*/
+    overflow-x: hidden;
+    touch-action: pan-y; /* 모바일에서 세로만 스크롤 */
 }
 body { 
     font-family: Arial, sans-serif; 
@@ -22,9 +24,8 @@ body {
     justify-content: center; 
     margin-bottom: 20px;
 }
-.paymethod-list.active {
-  background-color: #0d4dad; /* example: purple highlight */
-  color: white;
+.paymethod-btn.active {
+  border:2px solid #1691b1;
 }
 
 .buttons { 

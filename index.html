@@ -15,11 +15,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=MuseoModerno:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="paymethod">
-    <button onclick="addItem('Cash', 0)" onclick="setPayment('Cash', this)"><h5 class="paymethod-list">💵 Cash</h5></button>
-    <button onclick="addItem('Card', 0)" onclick="setPayment('Card', this)"><h5 class="paymethod-list">💳 Card</h5></button>
-    <button onclick="addItem('Eftpos', 0)" onclick="setPayment('Transfer', this)"><h5 class="paymethod-list">📲 Transfer</h5></button>
-  </div>
+<div class="paymethod">
+  <button class="paymethod-btn" onclick="setPayment('Cash', this)"><h5 class="paymethod-list">💵 Cash</h5></button>
+  <button class="paymethod-btn" onclick="setPayment('Card', this)"><h5 class="paymethod-list">💳 Card</h5></button>
+  <button class="paymethod-btn" onclick="setPayment('Transfer', this)"><h5 class="paymethod-list">📲 Transfer</h5></button>
+</div>
   <div id="total">Total: $0</div>
   <div class="button-row">
     <button onclick="submitOrder()" class="confirm-btn"> Confirm Order</button>
@@ -67,13 +67,16 @@
   let currentItems = [];
   let currentPayment = "Unknown"; // Default payment method
 
-    function setPayment(method, btn) {
-      currentPayment = method;
-      // Remove active class from all buttons
-      document.querySelectorAll(".paymethod-btn").forEach(b => b.classList.remove("active"));
-      // Add active class to clicked button
-      btn.classList.add("active");
-    }
+  function setPayment(method, btn) {
+    currentPayment = method;
+
+    // Remove 'active' from all payment buttons
+    document.querySelectorAll(".paymethod-btn").forEach(b => b.classList.remove("active"));
+
+    // Add 'active' to clicked button
+    btn.classList.add("active");
+  }
+
 
   function addItem(name, price) {
     if (['Cash','Card','Eftpos'].includes(name)) {
