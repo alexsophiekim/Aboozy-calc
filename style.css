@@ -24,10 +24,19 @@ body {
     justify-content: center; 
     margin-bottom: 20px;
 }
-.paymethod-btn.active {
-  border:2px solid #1691b1;
+.paymethod-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
 }
-
+.paymethod-btn.active {
+    background-color: #163fb1;
+    color: white;
+}
 .buttons { 
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
