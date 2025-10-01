@@ -16,9 +16,9 @@
 </head>
 <body>
 <div class="paymethod">
-  <button class="paymethod-btn" onclick="setPayment('Cash', this)"><h5 class="paymethod-list">💵 Cash</h5></button>
-  <button class="paymethod-btn" onclick="setPayment('Card', this)"><h5 class="paymethod-list">💳 Card</h5></button>
-  <button class="paymethod-btn" onclick="setPayment('Transfer', this)"><h5 class="paymethod-list">📲 Transfer</h5></button>
+  <button class="paymethod-btn" data-method="Cash"><h5>💵 Cash</h5></button>
+  <button class="paymethod-btn" data-method="Card"><h5>💳 Card</h5></button>
+  <button class="paymethod-btn" data-method="Transfer"><h5>📲 Transfer</h5></button>
 </div>
   <div id="total">Total: $0</div>
   <div class="button-row">
@@ -67,6 +67,16 @@
   let currentItems = [];
   let currentPayment = "Unknown"; // Default payment method
 
+  // Payment method buttons
+  document.querySelectorAll(".paymethod-btn").forEach(btn => {
+    btn.addEventListener("click", () => setPayment(btn.dataset.method, btn));
+    // Touch support
+    btn.addEventListener("touchstart", e => {
+      e.preventDefault(); // Prevents double event firing
+      setPayment(btn.dataset.method, btn);
+    });
+  });
+
   function setPayment(method, btn) {
     currentPayment = method;
 
@@ -76,7 +86,6 @@
     // Add 'active' to clicked button
     btn.classList.add("active");
   }
-
 
   function addItem(name, price) {
     if (['Cash','Card','Eftpos'].includes(name)) {
