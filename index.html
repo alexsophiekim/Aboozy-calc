@@ -82,7 +82,7 @@ function submitOrder() {
   localStorage.setItem("orders", JSON.stringify(orders));
 
   // google sheet posting
-  fetch("https://script.google.com/macros/s/AKfycbyH-Y9_3EMIaKHUgfe2PlvHjGQgcfgNiLhC7C01SXQJJD1Z0vZLPa_RJ9vzJwKG03L7/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbwCAa9jdnCZ79hw7jSwg_dAwQQ05BipBTZ9usY2lFQ-R593v8Ja0o88QiYT7WRBh_if/exec", {
     method: "POST",
     body: JSON.stringify({
       date: date,
