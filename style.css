@@ -30,12 +30,11 @@ body {
     font-size: 16px;
     border-radius: 10px;
     border: 1px solid #ccc;
-    background-color: white;
     cursor: pointer;
 }
 .paymethod-btn.active {
-    background-color: #163fb1;
-    color: white;
+    border: 2px solid #4CAF50;
+    color: #00880c;
 }
 .buttons { 
     display: grid;
