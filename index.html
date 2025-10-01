@@ -16,9 +16,9 @@
 </head>
 <body>
   <div class="paymethod">
-    <button onclick="addItem('Cash', 0)"><h5 class="paymethod-list">💵 Cash</h5></button>
-    <button onclick="addItem('Card', 0)"><h5 class="paymethod-list">💳 Card</h5></button>
-    <button onclick="addItem('Eftpos', 0)"><h5 class="paymethod-list">📲 Transfer</h5></button>
+    <button onclick="addItem('Cash', 0)" onclick="setPayment('Cash', this)"><h5 class="paymethod-list">💵 Cash</h5></button>
+    <button onclick="addItem('Card', 0)" onclick="setPayment('Card', this)"><h5 class="paymethod-list">💳 Card</h5></button>
+    <button onclick="addItem('Eftpos', 0)" onclick="setPayment('Transfer', this)"><h5 class="paymethod-list">📲 Transfer</h5></button>
   </div>
   <div id="total">Total: $0</div>
   <div class="button-row">
@@ -66,6 +66,14 @@
   let currentTotal = 0;
   let currentItems = [];
   let currentPayment = "Unknown"; // Default payment method
+
+    function setPayment(method, btn) {
+      currentPayment = method;
+      // Remove active class from all buttons
+      document.querySelectorAll(".paymethod-btn").forEach(b => b.classList.remove("active"));
+      // Add active class to clicked button
+      btn.classList.add("active");
+    }
 
   function addItem(name, price) {
     if (['Cash','Card','Eftpos'].includes(name)) {

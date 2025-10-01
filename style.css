@@ -22,6 +22,11 @@ body {
     justify-content: center; 
     margin-bottom: 20px;
 }
+.paymethod-list.active {
+  background-color: #0d4dad; /* example: purple highlight */
+  color: white;
+}
+
 .buttons { 
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
