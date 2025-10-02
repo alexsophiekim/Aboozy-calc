@@ -15,6 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Afacad:ital,wght@0,400..700;1,400..700&family=MuseoModerno:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 </head>
 <body>
+  
 <div class="paymethod">
   <div class="paymethod-btn" data-method="Cash">💵 Cash</div>
   <div class="paymethod-btn" data-method="Card">💳 Card</div>
@@ -63,143 +64,111 @@
 
 
 <script>
-  let currentTotal = 0;
-  let currentItems = [];
-  let currentPayment = "Unknown"; // Default payment method
+let currentTotal = 0;
+let currentItems = [];
+let currentPayment = "Unknown";
+
 const payButtons = document.querySelectorAll(".paymethod-btn");
 
+// 결제 버튼 클릭/터치 활성화
 payButtons.forEach(btn => {
-  btn.addEventListener("click", e => {
-    e.preventDefault(); // WebView compatibility
-    setPayment(btn.dataset.method, btn);
+  ['click','touchstart'].forEach(evt => {
+    btn.addEventListener(evt, e => {
+      e.preventDefault(); // 모바일 WebView 호환
+      setPayment(btn.dataset.method, btn);
+    });
   });
 });
 
 function setPayment(method, btn) {
   currentPayment = method;
-
-  // toggle active class
   payButtons.forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
 
+function addItem(name, price) {
+  currentTotal += price;
+  currentItems.push({ name, price, type:"item" });
+  updateTotal();
+}
 
-  function addItem(name, price) {
-    if (['Cash','Card','Eftpos'].includes(name)) {
-      currentPayment = name;   // Set payment method
-      return;
-    }
-    currentTotal += price;
-    currentItems.push(name);
-    document.getElementById("total").innerText = `Total: $${currentTotal.toFixed(2)}`;
-  }
 function addManualItem() {
   const priceInput = document.getElementById("manualPrice").value.trim();
   const price = parseFloat(priceInput);
-
-  // Only proceed if input is a valid number greater than 0
   if (!isNaN(price) && price > 0) {
-    let itemName = "Manual Item"; // Default name
-    const nameInput = document.getElementById("manualName"); // Optional separate input for name
-    if (nameInput && nameInput.value.trim() !== "") {
-      itemName = nameInput.value.trim();
-      nameInput.value = ""; // Clear name input
-    }
-
-    const manualItem = { name: itemName, price: price, type: "manual" };
+    currentItems.push({ name:"Manual Item", price, type:"manual" });
     currentTotal += price;
-    currentItems.push(manualItem);
-
-    document.getElementById("total").innerText = `Total: $${currentTotal.toFixed(2)}`;
-    document.getElementById("manualPrice").value = ""; // Clear price input
+    updateTotal();
+    document.getElementById("manualPrice").value = "";
   }
 }
 
-  function resetCurrentOrder() {
-    currentTotal = 0;
-    currentItems = [];
-    currentPayment = "Unknown"; // Reset payment method
-    document.getElementById("total").innerText = "Total: $0";
-  }
+function updateTotal() {
+  document.getElementById("total").innerText = `Total: $${currentTotal.toFixed(2)}`;
+}
 
+function resetCurrentOrder() {
+  currentTotal = 0;
+  currentItems = [];
+  currentPayment = "Unknown";
+  payButtons.forEach(b => b.classList.remove("active"));
+  updateTotal();
+}
+
+// Confirm / Reset 버튼 이벤트 (HTML의 onclick 속성 유지 가능)
 function submitOrder() {
-  if (currentTotal === 0) return;
+  if(currentTotal === 0) return;
 
   const now = new Date();
-  const date = now.toLocaleDateString();  
-  const time = now.toLocaleTimeString();  
-
-  // local storage
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
-  orders.push({
+  const orderData = {
+    date: now.toLocaleDateString(),
+    time: now.toLocaleTimeString(),
     items: currentItems,
     total: currentTotal,
-    date: date,
-    time: time,
-    method: currentPayment // Store payment method
-  });
+    method: currentPayment
+  };
+
+  // 로컬 저장
+  let orders = JSON.parse(localStorage.getItem("orders")) || [];
+  orders.push(orderData);
   localStorage.setItem("orders", JSON.stringify(orders));
 
-  // google sheet posting
-  fetch("https://script.google.com/macros/s/AKfycbw0pszD68eZghOEztDNB8Uaa43yBxpJqMD1TMxJmylcCAy4nAQ1msev-Ktr7u2G2F52/exec", {
-    method: "POST",
-    body: JSON.stringify({
-      date: date,
-      time: time,
-      items: currentItems,
-      total: currentTotal,
-      method: currentPayment // Include payment method
-      })
+  // Google Sheets POST
+  fetch("https://script.google.com/macros/s/AKfycbxMCJyHjSopgSlEz-rED0sZIu6hYgRKV-GV8YKpXgagUrph0Angsnbxt757pdktgeVw/exec", {
+    method:"POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderData)
   })
   .then(res => res.json())
   .then(data => console.log("Sheet saved:", data))
   .catch(err => console.error("Error sending to Sheet:", err));
 
-  // history rendering
   renderHistory();
-
-  //reset current order
-  currentTotal = 0;
-  currentItems = [];
-  document.getElementById("total").innerText = "Total: $0";
+  resetCurrentOrder();
 }
 
 function renderHistory() {
-  let orders = JSON.parse(localStorage.getItem("orders")) || [];
-  let historyEl = document.getElementById("history");
+  const orders = JSON.parse(localStorage.getItem("orders")) || [];
+  const historyEl = document.getElementById("history");
+  let summaryHTML = "";
   historyEl.innerHTML = "";
 
-  // Date grouping
-  let grouped = {};
-  orders.forEach(o => {
-    if (!grouped[o.date]) grouped[o.date] = [];
-    grouped[o.date].push(o);
-  });
-
-  let summaryHTML = "";
+  // 날짜별 그룹화
+  const grouped = {};
+  orders.forEach(o => { (grouped[o.date] ||= []).push(o); });
 
   Object.keys(grouped).sort().forEach(date => {
-    let dailyOrders = grouped[date];
     historyEl.innerHTML += `<div class="history-date">${date}</div>`;
-    dailyOrders.forEach(o => {
-      let li = document.createElement("div");
-      li.innerText = `${o.time} | ${o.items.join(", ")} = $${o.total.toFixed(2)}`;
+    grouped[date].forEach(o => {
+      const itemsText = o.items.map(i => `${i.name} ($${i.price})`).join(", ");
+      const li = document.createElement("div");
+      li.innerText = `${o.time} | ${itemsText} = $${o.total.toFixed(2)} | ${o.method}`;
       historyEl.appendChild(li);
     });
-
-    // Date summary
-    let totalSales = dailyOrders.reduce((sum, o) => sum + o.total, 0);
-    let gst = totalSales * (15/115);
-    let netSales = totalSales - gst;
-    summaryHTML += `
-      <div class="summary">
-        <strong>${date} Summary:</strong><br>
-        Daily total orders: ${dailyOrders.length}<br>
-        Total sales: $${totalSales.toFixed(2)}<br>
-        GST (15%): $${gst.toFixed(2)}<br>
-        Net sales: $${netSales.toFixed(2)}
-      </div>
-    `;
+    const totalSales = grouped[date].reduce((sum,o) => sum+o.total,0);
+    const gst = totalSales*0.15/1.15;
+    const net = totalSales-gst;
+    summaryHTML += `<div><strong>${date} Summary:</strong> Orders: ${grouped[date].length}, Sales: $${totalSales.toFixed(2)}, GST: $${gst.toFixed(2)}, Net: $${net.toFixed(2)}</div>`;
   });
 
   document.getElementById("summary").innerHTML = summaryHTML;
@@ -210,7 +179,6 @@ function resetHistory() {
   renderHistory();
 }
 
+// 초기 렌더링
 renderHistory();
 </script>
-</body>
-</html>

@@ -72,7 +72,7 @@ button {
     margin-bottom: 20px;
 }
 .confirm-btn {
-    width: 70%;
+    width: 85%;
     margin:4px;
     padding:10px;
     font-size: 20px;
@@ -81,7 +81,7 @@ button {
     border: none;
 }
 .restart-btn{
-    width: 20%;
+    width: 15%;
     padding:10px;
     font-size: 20px;
     border: 1px solid #ccc;
