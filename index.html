@@ -64,25 +64,16 @@
 
 
 <script>
-let currentTotal = 0;
+  let currentTotal = 0;
 let currentItems = [];
 let currentPayment = "Unknown";
 
 const payButtons = document.querySelectorAll(".paymethod-btn");
-
-// 결제 버튼 클릭/터치 활성화
 payButtons.forEach(btn => {
-  // click 이벤트
-  btn.addEventListener("click", e => {
-    setPayment(btn.dataset.method, btn);
-  });
-
-  // touchstart 이벤트 (passive:false 지정)
-  btn.addEventListener("touchstart", e => {
-    e.preventDefault();
-    setPayment(btn.dataset.method, btn);
-  }, { passive: false });
+  btn.addEventListener("click", () => setPayment(btn.dataset.method, btn));
+  btn.addEventListener("touchstart", e => { e.preventDefault(); setPayment(btn.dataset.method, btn); }, { passive: false });
 });
+
 function setPayment(method, btn) {
   currentPayment = method;
   payButtons.forEach(b => b.classList.remove("active"));
@@ -96,8 +87,7 @@ function addItem(name, price) {
 }
 
 function addManualItem() {
-  const priceInput = document.getElementById("manualPrice").value.trim();
-  const price = parseFloat(priceInput);
+  const price = parseFloat(document.getElementById("manualPrice").value.trim());
   if (!isNaN(price) && price > 0) {
     currentItems.push({ name:"Manual Item", price, type:"manual" });
     currentTotal += price;
@@ -118,7 +108,6 @@ function resetCurrentOrder() {
   updateTotal();
 }
 
-// Confirm / Reset 버튼 이벤트 (HTML의 onclick 속성 유지 가능)
 function submitOrder() {
   if(currentTotal === 0) return;
 
@@ -131,14 +120,12 @@ function submitOrder() {
     method: currentPayment
   };
 
-  // 로컬 저장
   let orders = JSON.parse(localStorage.getItem("orders")) || [];
   orders.push(orderData);
   localStorage.setItem("orders", JSON.stringify(orders));
 
-  // Google Sheets POST
-  fetch("https://script.google.com/macros/s/AKfycbxtNH6f9W5l9Z1Cbl-39W-gbb_Q0OUVWP5f3Z_xLAHSGMASViRh63XOE03pDSjuXihZ/exec", {
-    method:"POST",
+  fetch("https://script.google.com/macros/s/AKfycbzspvCr7a48wRQQdrZAabcpeO0903T8-m-50jnjgCkLtM9iyCF-RHoMb0mCVMaa_bLN/exec", {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderData)
   })
@@ -156,19 +143,18 @@ function renderHistory() {
   let summaryHTML = "";
   historyEl.innerHTML = "";
 
-  // 날짜별 그룹화
   const grouped = {};
   orders.forEach(o => { (grouped[o.date] ||= []).push(o); });
 
   Object.keys(grouped).sort().forEach(date => {
     historyEl.innerHTML += `<div class="history-date">${date}</div>`;
     grouped[date].forEach(o => {
-      const itemsText = o.items.map(i => `${i.name} ($${i.price})`).join(", ");
+      const itemsText = o.items.map(i=>`${i.name} ($${i.price})`).join(", ");
       const li = document.createElement("div");
       li.innerText = `${o.time} | ${itemsText} = $${o.total.toFixed(2)} | ${o.method}`;
       historyEl.appendChild(li);
     });
-    const totalSales = grouped[date].reduce((sum,o) => sum+o.total,0);
+    const totalSales = grouped[date].reduce((sum,o)=>sum+o.total,0);
     const gst = totalSales*0.15/1.15;
     const net = totalSales-gst;
     summaryHTML += `<div><strong>${date} Summary:</strong> Orders: ${grouped[date].length}, Sales: $${totalSales.toFixed(2)}, GST: $${gst.toFixed(2)}, Net: $${net.toFixed(2)}</div>`;
@@ -182,6 +168,8 @@ function resetHistory() {
   renderHistory();
 }
 
-// 초기 렌더링
 renderHistory();
+
 </script>
+</body>
+</html>
