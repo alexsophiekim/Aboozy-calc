@@ -140,7 +140,7 @@ function submitOrder() {
   localStorage.setItem("orders", JSON.stringify(orders));
 
   // Google Apps Script POST
-  fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbx-h6XxCr3zTCpXG7UZuaqPZzNYFlAAmILNmv3KO4ScSGvIzDox6nRDbUDxQHJj9Yg/exec", {
     method:"POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderData)
