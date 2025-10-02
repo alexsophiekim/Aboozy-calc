@@ -140,13 +140,12 @@ function submitOrder() {
   localStorage.setItem("orders", JSON.stringify(orders));
 
   // Google Apps Script POST
-  fetch("https://script.google.com/macros/s/AKfycbx-h6XxCr3zTCpXG7UZuaqPZzNYFlAAmILNmv3KO4ScSGvIzDox6nRDbUDxQHJj9Yg/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbzPvCeJFj4PVvr6AShpY4CHISHw0FYXL4Fj1QY2JldpF1-yOh3-onCWyVHLAKMlhll8/exec", {
     method:"POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(orderData)
+    body: JSON.stringify(orderData),
+    mode: "no-cors"
   })
-  .then(res => res.json())
-  .then(data => console.log("Sheet saved:", data))
+  .then(() => console.log("Sheet saved"))
   .catch(err => console.error("Error sending to Sheet:", err));
 
   renderHistory();
