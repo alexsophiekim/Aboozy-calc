@@ -72,14 +72,17 @@ const payButtons = document.querySelectorAll(".paymethod-btn");
 
 // 결제 버튼 클릭/터치 활성화
 payButtons.forEach(btn => {
-  ['click','touchstart'].forEach(evt => {
-    btn.addEventListener(evt, e => {
-      e.preventDefault(); // 모바일 WebView 호환
-      setPayment(btn.dataset.method, btn);
-    });
+  // click 이벤트
+  btn.addEventListener("click", e => {
+    setPayment(btn.dataset.method, btn);
   });
-});
 
+  // touchstart 이벤트 (passive:false 지정)
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault();
+    setPayment(btn.dataset.method, btn);
+  }, { passive: false });
+});
 function setPayment(method, btn) {
   currentPayment = method;
   payButtons.forEach(b => b.classList.remove("active"));
@@ -134,7 +137,7 @@ function submitOrder() {
   localStorage.setItem("orders", JSON.stringify(orders));
 
   // Google Sheets POST
-  fetch("https://script.google.com/macros/s/AKfycbxbB8tIRDNGvgLtSdFPBkp6Yv5Vjr5sV4iK0Gn8kJmhg0LZ0l_xh5GSwLqjQyOFSToC/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxtNH6f9W5l9Z1Cbl-39W-gbb_Q0OUVWP5f3Z_xLAHSGMASViRh63XOE03pDSjuXihZ/exec", {
     method:"POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderData)
