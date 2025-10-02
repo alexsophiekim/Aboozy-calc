@@ -124,7 +124,7 @@ function submitOrder() {
   orders.push(orderData);
   localStorage.setItem("orders", JSON.stringify(orders));
 
-  fetch("https://script.google.com/macros/s/AKfycbzspvCr7a48wRQQdrZAabcpeO0903T8-m-50jnjgCkLtM9iyCF-RHoMb0mCVMaa_bLN/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbx-h6XxCr3zTCpXG7UZuaqPZzNYFlAAmILNmv3KO4ScSGvIzDox6nRDbUDxQHJj9Yg/exec", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderData)
