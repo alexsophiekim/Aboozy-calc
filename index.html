@@ -67,12 +67,24 @@
 let currentTotal = 0;
 let currentItems = [];
 let currentPayment = "Unknown";
-const itemsText = o.items.map(i => `${i.name||"Unknown"} ($${i.price||0})`).join(", ");
 
 const payButtons = document.querySelectorAll(".paymethod-btn");
+
+let touchHandled = false;
+
 payButtons.forEach(btn => {
-  btn.addEventListener("click", () => setPayment(btn.dataset.method, btn));
-  btn.addEventListener("touchstart", e => { e.preventDefault(); setPayment(btn.dataset.method, btn); }, { passive: false });
+  // 모바일 터치 이벤트
+  btn.addEventListener("touchstart", e => {
+    e.preventDefault(); // 스크롤 막음
+    setPayment(btn.dataset.method, btn);
+    touchHandled = true;
+  }, { passive: false });
+
+  // 클릭 이벤트 (데스크탑 혹은 터치 후 중복 방지)
+  btn.addEventListener("click", e => {
+    if (!touchHandled) setPayment(btn.dataset.method, btn);
+    touchHandled = false;
+  });
 });
 
 function setPayment(method, btn) {
@@ -80,8 +92,8 @@ function setPayment(method, btn) {
   payButtons.forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
+
 function addItem(name, price) {
-  if (!name || isNaN(price)) return; 
   currentTotal += price;
   currentItems.push({ name, price, type:"item" });
   updateTotal();
@@ -95,8 +107,6 @@ function addManualItem() {
     currentTotal += price;
     updateTotal();
     document.getElementById("manualPrice").value = "";
-  } else {
-    alert("Please enter a valid price.");
   }
 }
 
@@ -124,12 +134,14 @@ function submitOrder() {
     method: currentPayment
   };
 
+  // 로컬 저장
   let orders = JSON.parse(localStorage.getItem("orders")) || [];
   orders.push(orderData);
   localStorage.setItem("orders", JSON.stringify(orders));
 
-  fetch("https://script.google.com/macros/s/AKfycbx-h6XxCr3zTCpXG7UZuaqPZzNYFlAAmILNmv3KO4ScSGvIzDox6nRDbUDxQHJj9Yg/exec", {
-    method: "POST",
+  // Google Apps Script POST
+  fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+    method:"POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderData)
   })
@@ -153,12 +165,12 @@ function renderHistory() {
   Object.keys(grouped).sort().forEach(date => {
     historyEl.innerHTML += `<div class="history-date">${date}</div>`;
     grouped[date].forEach(o => {
-      const itemsText = o.items.map(i=>`${i.name} ($${i.price})`).join(", ");
+      const itemsText = o.items.map(i => `${i.name} ($${i.price})`).join(", ");
       const li = document.createElement("div");
       li.innerText = `${o.time} | ${itemsText} = $${o.total.toFixed(2)} | ${o.method}`;
       historyEl.appendChild(li);
     });
-    const totalSales = grouped[date].reduce((sum,o)=>sum+o.total,0);
+    const totalSales = grouped[date].reduce((sum,o) => sum+o.total,0);
     const gst = totalSales*0.15/1.15;
     const net = totalSales-gst;
     summaryHTML += `<div><strong>${date} Summary:</strong> Orders: ${grouped[date].length}, Sales: $${totalSales.toFixed(2)}, GST: $${gst.toFixed(2)}, Net: $${net.toFixed(2)}</div>`;
@@ -172,7 +184,9 @@ function resetHistory() {
   renderHistory();
 }
 
+// 초기 렌더링
 renderHistory();
+
 
 </script>
 </body>
