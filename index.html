@@ -64,9 +64,10 @@
 
 
 <script>
-  let currentTotal = 0;
+let currentTotal = 0;
 let currentItems = [];
 let currentPayment = "Unknown";
+const itemsText = o.items.map(i => `${i.name||"Unknown"} ($${i.price||0})`).join(", ");
 
 const payButtons = document.querySelectorAll(".paymethod-btn");
 payButtons.forEach(btn => {
@@ -79,20 +80,23 @@ function setPayment(method, btn) {
   payButtons.forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
 }
-
 function addItem(name, price) {
+  if (!name || isNaN(price)) return; 
   currentTotal += price;
   currentItems.push({ name, price, type:"item" });
   updateTotal();
 }
 
 function addManualItem() {
-  const price = parseFloat(document.getElementById("manualPrice").value.trim());
+  const priceInput = document.getElementById("manualPrice").value.trim();
+  const price = parseFloat(priceInput);
   if (!isNaN(price) && price > 0) {
     currentItems.push({ name:"Manual Item", price, type:"manual" });
     currentTotal += price;
     updateTotal();
     document.getElementById("manualPrice").value = "";
+  } else {
+    alert("Please enter a valid price.");
   }
 }
 
