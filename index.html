@@ -134,7 +134,7 @@ function submitOrder() {
   localStorage.setItem("orders", JSON.stringify(orders));
 
   // Google Sheets POST
-  fetch("https://script.google.com/macros/s/AKfycbxMCJyHjSopgSlEz-rED0sZIu6hYgRKV-GV8YKpXgagUrph0Angsnbxt757pdktgeVw/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxbB8tIRDNGvgLtSdFPBkp6Yv5Vjr5sV4iK0Gn8kJmhg0LZ0l_xh5GSwLqjQyOFSToC/exec", {
     method:"POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(orderData)
